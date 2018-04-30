@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="utils.fs" />
+    <Compile Include="io.fs" />
+    <Compile Include="file.fs" />
+    <Compile Include="config.fs" />
+    <Compile Include="editDistance.fs" />
+    <Compile Include="resolve.fs" />
+    <Compile Include="parser.fs" />
+    <Compile Include="main.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Chiron" Version="6.2.1" />
+    <PackageReference Include="CliWrap" Version="1.8.4" />
+    <PackageReference Include="Fsharp.Data" Version="2.4.6" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+  </ItemGroup>
+</Project>
