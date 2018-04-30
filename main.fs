@@ -5,6 +5,7 @@ open System
 open config
 open utils
 open io
+open result
 
 let run = 
     let config = getConfig(getProcArgs());
@@ -36,10 +37,9 @@ let getBrokenRefs doesExist isNpm filename =
         |> Seq.filter (complement doesExist)
 
 let buildResolveObj filename oldPath =
-    Map.empty.
-        Add("filename", filename). 
-        Add("oldPath", oldPath).
-        Add("fullOldPath", (relativeToAbsolute filename oldPath))
+    { Result.filename = filename;
+      oldPath = oldPath;
+      fullOldPath = relativeToAbsolute filename oldPath }
 
 let refExists allFiles excludedExtensions refObj =
     doesFileExistWithExtnLookup
@@ -48,11 +48,11 @@ let refExists allFiles excludedExtensions refObj =
         (prop "fullOldPath" refObj)
 
 let findPotentials allFiles config fileAndRef = 
-    Map.empty.Add(
-        "potentials", findFilesWithMatchingNamesi
-            allFiles
-            config.missingExtensions
-            (path.basename fileAndRef.oldPath))
+    { fileAndRef with 
+        potentials = (findFilesWithMatchingNamesi
+                allFiles
+                config.missingExtensions
+                (path.basename fileAndRef.oldPath)) }
 
 let resolveRef allFiles resolver fileAndRef =
     merge fileAndRef (resolver fileAndRef)
