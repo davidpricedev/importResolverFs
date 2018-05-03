@@ -7,27 +7,6 @@ open utils
 open io
 open result
 
-let run = 
-    let config = getConfig(getProcArgs());
-    let allFiles = getProjectFiles(config);
-    let allNpms = getAllNpms();
-
-    let myRefExists = refExists(allFiles, config.missingExtensions);
-    let myIsNpmPath = isNpmPath(allNpms);
-
-    allFiles
-    //|> log "Looking for broken references")
-    |> Seq.map (getBrokenRefs myRefExists myIsNpmPath)
-    // remove files that don't have any broken refs
-    |> Seq.filter (Seq.isEmpty >> not)
-    |> Seq.concat
-    //|> log "Looking for potential solutions")
-    |> Seq.map (applyAndMerge (findPotentials allFiles config))
-    //|> log "Looking for the best solution")
-    |> Seq.map (applyAndMerge (resolveRef allFiles resolve))
-    |> Seq.map (applyAndMerge (resultToRef config))
-    |> Seq.map (applyOrDisplay config)
-
 let applyAndMerge f x = merge x (f x)
 
 let getBrokenRefs doesExist isNpm filename =
@@ -37,8 +16,8 @@ let getBrokenRefs doesExist isNpm filename =
         |> Seq.filter (complement doesExist)
 
 let buildResolveObj filename oldPath =
-    { Result.filename = filename;
-      oldPath = oldPath;
+    { Result.filename = filename
+      oldPath = oldPath
       fullOldPath = relativeToAbsolute filename oldPath }
 
 let refExists allFiles excludedExtensions refObj =
@@ -78,3 +57,24 @@ let applyChange x =
     display x
 
 let applyOrDisplay = ifElse (prop "dryRun") (K display) (K applyChange)
+
+let run = 
+    let config = getConfig getProcArgs()
+    let allFiles = getProjectFiles config
+    let allNpms = getAllNpms()
+
+    let myRefExists = refExists allFiles config.missingExtensions
+    let myIsNpmPath = isNpmPath allNpms
+
+    allFiles
+    //|> log "Looking for broken references")
+    |> Seq.map (getBrokenRefs myRefExists myIsNpmPath)
+    // remove files that don't have any broken refs
+    |> Seq.filter (Seq.isEmpty >> not)
+    |> Seq.concat
+    //|> log "Looking for potential solutions")
+    |> Seq.map (applyAndMerge (findPotentials allFiles config))
+    //|> log "Looking for the best solution")
+    |> Seq.map (applyAndMerge (resolveRef allFiles resolve))
+    |> Seq.map (applyAndMerge (resultToRef config))
+    |> Seq.map (applyOrDisplay config)

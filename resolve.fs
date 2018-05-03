@@ -3,51 +3,42 @@ module resolve
 open System
 open utils
 open editDistance
+open Result
 
-let resolveValidation = fileAndRef =
-    if not (isValid fileAndRef) then
-        let defaultObj = { potentials: List.of(), oldPath: "" }
-        return Maybe.None(merge(defaultObj, fileAndRef))
-    }
-
-    return Maybe.Some(fileAndRef)
-}
-
-let isValid = fileAndRef =
+let isValid fileAndRef =
     fileAndRef.potentials &&
-    List.isList(fileAndRef.potentials) &&
-    fileAndRef.potentials.isNonEmpty() &&
-    fileAndRef.oldPath
+    fileAndRef.potentials.isNonEmpty()
 
-/**
- * Not really any better than random...
- */
-let first fileAndRef = objOf "first" (_getFirst fileAndRef)
+let resolveValidation fileAndRef =
+    if not (isValid fileAndRef) then
+        None
+    else Some fileAndRef
+
+let first (fileAndRef: Result) = { fileAndRef with first = (fileAndRef.potentials |> Seq.head) }
 
 let _getFirst fileAndRef =
-    fileAndRef
-        .fold()
-        .potentials.maybeHead()
-        .fold()
+    fileAndRef.potentials |> Seq.head
         
-let closestMap x = setrefpath x >> setPathDist x
-let setrefpath = set(lensProp("refpath"))
+let closestMap x fileandRef = { fileAndRef with refpath = x; pathDist = x }
+
+//let setrefpath = set(lensProp("refpath"))
+
 let calcPathDistance = split dirPath.sep >> prop "length"
+
 let setPathDist = calcPathDistance >> set (lensProp "pathDist")
 
-/**
- * Shortest distance between the file and the refpath option.
- * Good for converting to better app-like organization structure
- *  (where apart from common utils, files should be close to the files they reference).
- */
-let closest fileAndRef = objOf "closest" (_getClosest fileAndRef)
+///<summary>
+/// Shortest distance between the file and the refpath option.
+/// Good for converting to better app-like organization structure
+///  (where apart from common utils, files should be close to the files they reference).
+///</summary>
+let closest fileAndRef = { fileAndRef with closest = (_getClosest fileAndRef) }
 
 let _getClosest fileAndRef =
     fileAndRef
-        .fold()
-        .potentials.map closestMap
-        .fold (minBy (prop "pathDist")) (objOf "pathDist" Infinity)
-        .refPath
+    |> .potentials.map closestMap
+    |> Seq.fold (minBy (prop "pathDist")) (objOf "pathDist" Infinity)
+    |> fun x -> x.refPath
 
 /**
  * Shortest edit distance between old and new paths.

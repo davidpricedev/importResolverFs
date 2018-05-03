@@ -5,12 +5,14 @@ open utils
 open CliWrap
 open System.IO
 open FSharp.Core
+open path
 
 (******************
  * All the IO side effects
  *****************)
 
-let prefixCwd x = Path.Combine(Directory.GetCurrentDirectory(), x)
+
+let prefixCwd x = pathJoin (Directory.GetCurrentDirectory()) x
 
 let stripCwd (x: string) = x.Replace(Directory.GetCurrentDirectory(), "")
 
@@ -26,8 +28,10 @@ let getAllFiles path = Directory.GetFiles(path, "*.*", SearchOption.AllDirectori
 
 let getNpmFolders = Directory.GetDirectories(prefixCwd "node_modules")
 
+///<summary>
 /// hard-code for now since we can't use the node runtime itself
 /// could use: https://github.com/sindresorhus/builtin-modules
+///</summary>
 let getNpmBuiltins = seq { yield "fs"; yield "os"; }
 
 let getAllNpms = Seq.append getNpmFolders getNpmBuiltins
