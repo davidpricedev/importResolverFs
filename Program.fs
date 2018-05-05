@@ -1,9 +1,8 @@
 module Program
 
-open main
+open Main
 
 [<EntryPoint>]
 let program argv =
-    printfn "Hello World from F#!"
-    run argv
+    run argv |> ignore
     0 // return an integer exit code

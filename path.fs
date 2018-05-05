@@ -1,8 +1,7 @@
-module path
+module Path
 
 open System
-open utils
-open CliWrap
+open Utils
 open System.IO
 open FSharp.Core
 
@@ -14,6 +13,9 @@ let pathJoin m n = Path.Combine(m, n)
 
 let toAbsolute (filePath: string) =
     Path.GetFullPath(filePath)
+
+let baseName (filePath: string) =
+    Path.GetFileName(filePath)
 
 let dirName (filePath: string) =
     Path.GetDirectoryName(filePath)

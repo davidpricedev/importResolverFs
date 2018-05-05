@@ -1,67 +1,76 @@
-﻿module main
+﻿module Main
 
 open System
-
-open config
-open utils
-open io
+open Config
+open Utils
+open IO
 open result
+open File
+open Resolve
+open Path
 
-let applyAndMerge f x = merge x (f x)
+let getResolveObj filename oldPath =
+    buildResolveObj filename oldPath (relativeToAbsolute filename oldPath)
 
 let getBrokenRefs doesExist isNpm filename =
-    (getRefsFromFile filename)
-        |> Seq.filter (complement isNpm)
-        |> Seq.map (buildResolveObj filename)
-        |> Seq.filter (complement doesExist)
-
-let buildResolveObj filename oldPath =
-    { Result.filename = filename
-      oldPath = oldPath
-      fullOldPath = relativeToAbsolute filename oldPath }
+    getRefsFromFile filename
+    |> Seq.filter (not << isNpm)
+    |> Seq.map (getResolveObj filename)
+    |> Seq.filter (not << doesExist)
 
 let refExists allFiles excludedExtensions refObj =
     doesFileExistWithExtnLookup
-        allFiles,
-        excludedExtensions,
-        (prop "fullOldPath" refObj)
+        allFiles
+        excludedExtensions
+        refObj.fullOldPath
 
 let findPotentials allFiles config fileAndRef = 
+    let potentials = findFilesWithMatchingNamesi allFiles config.missingExtensions (baseName fileAndRef.oldPath)
+
+    let potentialsOpt =
+        if potentials |> Seq.isEmpty then None else Some potentials 
+
     { fileAndRef with 
-        potentials = (findFilesWithMatchingNamesi
-                allFiles
-                config.missingExtensions
-                (path.basename fileAndRef.oldPath)) }
+        potentials = potentialsOpt }
 
 let resolveRef allFiles resolver fileAndRef =
-    merge fileAndRef (resolver fileAndRef)
+    (resolver fileAndRef)
 
-let resultToRef config resolveObj = Map.empty.Add(
-    "resultRef", absoluteToRef
-        (prop "filename" resolveObj)
-        (getResult config resolveObj))
+let getResult config (resolveObj: Result) =
+    match config.resolveAlgo with
+    | "first" -> resolveObj.first 
+    | "random" -> resolveObj.random 
+    | "closest" -> resolveObj.closest 
+    | "editDistance" -> resolveObj.editDistance 
+    | _ -> resolveObj.first
 
-let getResult config resolveObj =
-    prop config.resolveAlgo resolveObj
+let resultToRef config resolveObj = 
+    let iResultToRef =
+        getResult config >>
+        Option.bind (absoluteToRef resolveObj.filename)
+
+    { resolveObj with 
+        resultRef = iResultToRef resolveObj }
+            
 
 let displayChange x = 
-    printfn "[%s]: \n\t%s\n\t -> %s" x.filename x.oldPath x.resultRef
+    printfn "[%s]: \n\t%s\n\t -> %s" x.filename x.oldPath (optToStr x.resultRef)
 
 let displayError x =
-    printfn "[%s]: \n\t%s\n\t ~ %s" x.filename x.oldPath x.message
+    printfn "[%s]: \n\t%s\n\t ~ %s" x.filename x.oldPath (optToStr x.message)
 
-let display = ifElse (has "message") displayError displayChange
+let display = ifElse (fun x -> Option.isSome x.message) displayError displayChange
 
 let applyChange x = 
     replaceContent x
     display x
 
-let applyOrDisplay = ifElse (prop "dryRun") (K display) (K applyChange)
+let applyOrDisplay = ifElse (fun x -> x.dryRun) (K display) (K applyChange)
 
-let run = 
-    let config = getConfig getProcArgs()
+let run argv = 
+    let config = getConfig argv
     let allFiles = getProjectFiles config
-    let allNpms = getAllNpms()
+    let allNpms = getAllNpms
 
     let myRefExists = refExists allFiles config.missingExtensions
     let myIsNpmPath = isNpmPath allNpms
@@ -73,8 +82,12 @@ let run =
     |> Seq.filter (Seq.isEmpty >> not)
     |> Seq.concat
     //|> log "Looking for potential solutions")
-    |> Seq.map (applyAndMerge (findPotentials allFiles config))
-    //|> log "Looking for the best solution")
-    |> Seq.map (applyAndMerge (resolveRef allFiles resolve))
-    |> Seq.map (applyAndMerge (resultToRef config))
-    |> Seq.map (applyOrDisplay config)
+    |> Seq.map (
+        // find all potential ref matches
+        (findPotentials allFiles config) >>
+        // use some algorithms to find the best ones
+        (resolveRef allFiles resolve) >>
+        // pick the algorithm solution specified in the config
+        (resultToRef config) >>
+        // apply all the changes (or display what we would change if --dry-run was specified)
+        (applyOrDisplay config))

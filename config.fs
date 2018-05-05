@@ -1,8 +1,8 @@
-module config
+module Config
 
 open System
-open FSharp.Data
-open io
+open Newtonsoft.Json
+open IO
 
 let EXPECTED_CONFIG_NAME = "./importResolver.json"
 
@@ -34,7 +34,7 @@ export type Config = {
 };
 *)
 
-type configJsonType = JsonProvider<"""
+let defaultConfig = """
 {
     "fileTypes": [".js", ".jsx", ".mjs", ".ts", ".tsx", ".json", ".png"],
     "missingExtensions": [".js", ".jsx", ".mjs", ".ts", ".tsx", ".json"],
@@ -42,9 +42,17 @@ type configJsonType = JsonProvider<"""
     "requireGitClean": false,
     "resolveAlgo": "closest"
 }
-""">
+"""
 
-type configType = {
+type ConfigJsonType = {
+    fileTypes: string array
+    missingExtensions: string array
+    exclude: string array
+    requireGitClean: bool
+    resolveAlgo: string
+}
+
+type ConfigType = {
     fileTypes: string seq
     missingExtensions: string seq
     exclude: string seq
@@ -53,11 +61,11 @@ type configType = {
     dryRun: bool
 }
 
-let defaultConfig = configJsonType.GetSample()
+let parseConfig = JsonConvert.DeserializeObject<ConfigJsonType>
 
 let hasDryRun args = args |> Seq.exists ((=) "--dry-run")
 
-let toConfigType args jsonConfig = {
+let toConfigType args (jsonConfig: ConfigJsonType) = {
     fileTypes = jsonConfig.fileTypes
     missingExtensions = jsonConfig.missingExtensions
     exclude = jsonConfig.exclude
@@ -65,17 +73,16 @@ let toConfigType args jsonConfig = {
     resolveAlgo = jsonConfig.resolveAlgo
     dryRun = hasDryRun args }
     
-let getAndParse x = (prefixCwd >> readWholeFile) x |> configJsonType.Parse
+let readAndParse = prefixCwd >> readWholeFile >> parseConfig
     
 let findBestConfig x =
     match x with 
-    | Some x when (doesFileExist x) -> getAndParse x
-    | _ when (doesFileExist EXPECTED_CONFIG_NAME) -> getAndParse EXPECTED_CONFIG_NAME
-    | _ -> defaultConfig
+    | Some x when (doesFileExist x) -> readAndParse x
+    | _ when (doesFileExist EXPECTED_CONFIG_NAME) -> readAndParse EXPECTED_CONFIG_NAME
+    | _ -> defaultConfig |> parseConfig
 
 let getConfig args =
     args
     |> Array.tryLast
     |> findBestConfig
-    |> (fun x -> toConfigType args x)
-
+    |> (fun x -> (toConfigType args x))

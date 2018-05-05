@@ -1,11 +1,11 @@
-module io
+module IO
 
 open System
-open utils
+open Utils
 open CliWrap
 open System.IO
 open FSharp.Core
-open path
+open Path
 
 (******************
  * All the IO side effects
@@ -31,6 +31,7 @@ let getNpmFolders = Directory.GetDirectories(prefixCwd "node_modules")
 ///<summary>
 /// hard-code for now since we can't use the node runtime itself
 /// could use: https://github.com/sindresorhus/builtin-modules
+/// - if there was a way to consume json easily
 ///</summary>
 let getNpmBuiltins = seq { yield "fs"; yield "os"; }
 

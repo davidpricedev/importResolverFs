@@ -1,4 +1,4 @@
-module utils
+module Utils
 
 let inline T x f = f x
 let inline I x = x
@@ -16,3 +16,12 @@ let containsWith pred x list =
 // borrowed from Ramda
 let innerJoin (pred) (xs) (ys) = 
     xs |> Seq.filter (fun x -> (containsWith pred x ys))
+
+let concat (b: string) (a: string) = a + b
+let endsWith (e: string) (str: string) = str.EndsWith(e)
+let startsWith (s: string) (str: string) = str.StartsWith(s)
+
+let optToStr (strOpt: string option) = 
+    match strOpt with
+    | Some x -> x
+    | None -> ""

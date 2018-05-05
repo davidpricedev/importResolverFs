@@ -8,18 +8,21 @@
     <Compile Include="result.fs" />
     <Compile Include="path.fs" />
     <Compile Include="io.fs" />
+    <Compile Include="config.fs" />
     <Compile Include="parser.fs" />
     <Compile Include="file.fs" />
-    <Compile Include="config.fs" />
-    <Compile Include="editDistance.fs" />
+    <Compile Include="resolve/resolveUtil.fs" />
+    <Compile Include="resolve/editDistanceAlgo.fs" />
+    <Compile Include="resolve/first.fs" />
+    <Compile Include="resolve/random.fs" />
+    <Compile Include="resolve/editDistance.fs" />
+    <Compile Include="resolve/closest.fs" />
     <Compile Include="resolve.fs" />
     <Compile Include="main.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Chiron" Version="6.2.1" />
     <PackageReference Include="CliWrap" Version="1.8.4" />
-    <PackageReference Include="Fsharp.Data" Version="2.4.6" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
   </ItemGroup>
 </Project>

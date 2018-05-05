@@ -1,7 +1,7 @@
-module editDistance
+module EditDistanceAlgo
 
 open System
-open utils
+open Utils
 
 ///<summary>
 /// Implements a 2d table / matrix
@@ -37,14 +37,14 @@ type Node(table: Table, row: int, col: int) =
     member this.prevInCol = Node(table, row, (col - 1))
     member this.prevInRow = Node(table, (row - 1),  col)
     member this.prevDiag = Node(table, (row - 1), (col - 1))
-    member this.isFirstInCol () = col = 0
-    member this.isFirstInRow () = row = 0
+    member this.isFirstInCol = col = 0
+    member this.isFirstInRow = row = 0
     
 let nodeAt table row col = Node(table, row, col)
 
 ///<summary>
-/// mutating, maps the given callback across the table.
-/// the callback should expect a node as the argument
+/// Mutates!, maps the given callback across the table.
+/// the callback should expect a Node as the argument
 ///</summary>
 let mmap (table: Table) mapFn =
     [| for i in 0 .. table.len -> 
@@ -78,8 +78,8 @@ let calculateDistance (strh: string) (strv: string) =
     let myReplaceCost = getReplaceCost strh strv
 
     mmap m (fun (node: Node) -> 
-        if node.isFirstInCol() then node.rowIndex;
-        elif node.isFirstInRow() then node.colIndex;
+        if node.isFirstInCol then node.rowIndex;
+        elif node.isFirstInRow then node.colIndex;
         else [
                 myReplaceCost node
                 getDelCost node
