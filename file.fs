@@ -19,13 +19,10 @@ let private isStartInList (starts: string seq) (str: string) =
     |> Option.isSome
 
 let private fileFilter (config: ConfigType) =
-    stripCwd >> 
-        both
-            (isEndInList config.fileTypes)
-            (not << (isStartInList config.exclude))
+    both (isEndInList config.fileTypes) (not << (isStartInList config.exclude))
 
 let getProjectFiles config =
-    (getAllFiles ".") |> Seq.filter (fileFilter config)
+    (getAllFiles ".") |> Seq.filter (stripCwd >> (fileFilter config))
 
 let relativeToAbsolute relativeToFile relpath =
     pathJoin (dirName relativeToFile) relpath

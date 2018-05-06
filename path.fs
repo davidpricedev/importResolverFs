@@ -9,7 +9,13 @@ let private altSep = Path.AltDirectorySeparatorChar
 let private sepChar = Path.DirectorySeparatorChar
 let pathSep = Path.DirectorySeparatorChar.ToString()
 
-let pathJoin m n = Path.Combine(m, n)
+let private noopDir = pathSep + "." + pathSep
+
+let pathJoin m n = 
+    let combined = Path.Combine(m, n)
+    match combined with
+    | null -> ""
+    | x -> x.Replace(noopDir, pathSep)
 
 let toAbsolute (filePath: string) =
     Path.GetFullPath(filePath)
@@ -22,6 +28,8 @@ let dirName (filePath: string) =
 
 let private hasExtn (path: string) = Path.HasExtension(path)
 let private endsWithSep (path: string) = path.EndsWith(pathSep)
+
+let cwd = Directory.GetCurrentDirectory() + "/"
 
 let private nor a b = not (a || b)
 

@@ -5,6 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="utils.fs" />
+    <Compile Include="spy.fs" />
     <Compile Include="result.fs" />
     <Compile Include="path.fs" />
     <Compile Include="io.fs" />

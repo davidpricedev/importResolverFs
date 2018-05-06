@@ -12,21 +12,28 @@ open Path
  *****************)
 
 
-let prefixCwd x = pathJoin (Directory.GetCurrentDirectory()) x
+let prefixCwd x = pathJoin cwd x
 
-let stripCwd (x: string) = x.Replace(Directory.GetCurrentDirectory(), "")
+let stripCwd (x: string) = x.Replace(cwd, "")
 
 let writeFile path content = File.WriteAllText(path, content) 
 
 let doesFileExist path = File.Exists path
 
-let readFile = ifElse doesFileExist (fun path -> File.ReadLines path) (K Seq.empty)
+let readFile = ifElse doesFileExist File.ReadLines (K Seq.empty)
 
-let readWholeFile = ifElse doesFileExist (fun path -> File.ReadAllText path) (K "")
+let readWholeFile = ifElse doesFileExist File.ReadAllText (K "")
 
-let getAllFiles path = Directory.GetFiles(path, "*.*", SearchOption.AllDirectories)
+let getAllFiles path =
+    Directory.GetFiles(path, "*.*", SearchOption.AllDirectories)
+    |> Seq.map toAbsolute
 
-let getNpmFolders = Directory.GetDirectories(prefixCwd "node_modules")
+let getNpmFolders =
+    try
+        Directory.GetDirectories (prefixCwd "node_modules")
+        |> Seq.map baseName
+    with
+    | x -> Seq.empty
 
 ///<summary>
 /// hard-code for now since we can't use the node runtime itself

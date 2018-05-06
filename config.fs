@@ -38,7 +38,7 @@ let defaultConfig = """
 {
     "fileTypes": [".js", ".jsx", ".mjs", ".ts", ".tsx", ".json", ".png"],
     "missingExtensions": [".js", ".jsx", ".mjs", ".ts", ".tsx", ".json"],
-    "exclude": [".git", "node_modules", "coverage"],
+    "exclude": [".git", "node_modules", "coverage", "bin"],
     "requireGitClean": false,
     "resolveAlgo": "closest"
 }
@@ -79,10 +79,11 @@ let findBestConfig x =
     match x with 
     | Some x when (doesFileExist x) -> readAndParse x
     | _ when (doesFileExist EXPECTED_CONFIG_NAME) -> readAndParse EXPECTED_CONFIG_NAME
-    | _ -> defaultConfig |> parseConfig
+    | _ -> parseConfig defaultConfig
 
 let getConfig args =
     args
     |> Array.tryLast
+    |> Spy.inspect "arg-last"
     |> findBestConfig
-    |> (fun x -> (toConfigType args x))
+    |> toConfigType args
