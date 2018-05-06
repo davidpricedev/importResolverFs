@@ -1,8 +1,6 @@
 module IO
 
-open System
 open Utils
-open CliWrap
 open System.IO
 open FSharp.Core
 open Path
@@ -26,20 +24,21 @@ let readWholeFile = ifElse doesFileExist File.ReadAllText (K "")
 
 let getAllFiles path =
     Directory.GetFiles(path, "*.*", SearchOption.AllDirectories)
-    |> Seq.map toAbsolute
+    |> Array.map toAbsolute
 
 let getNpmFolders =
     try
         Directory.GetDirectories (prefixCwd "node_modules")
         |> Seq.map baseName
     with
-    | x -> Seq.empty
+    | _ -> Seq.empty
 
 ///<summary>
 /// hard-code for now since we can't use the node runtime itself
 /// could use: https://github.com/sindresorhus/builtin-modules
 /// - if there was a way to consume json easily
+/// TODO: Find a better way
 ///</summary>
-let getNpmBuiltins = seq { yield "fs"; yield "os"; }
+let getNpmBuiltins = seq { yield "fs"; yield "os"; yield "path"; }
 
 let getAllNpms = Seq.append getNpmFolders getNpmBuiltins

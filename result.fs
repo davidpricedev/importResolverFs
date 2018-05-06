@@ -16,6 +16,7 @@ type Result = {
     editDistance: string option
 
     message: string option
+    time: int
 }
 
 let buildResolveObj filename oldPath fullOldPath =
@@ -28,4 +29,5 @@ let buildResolveObj filename oldPath fullOldPath =
       random = None
       closest = None
       editDistance = None
-      message = None }
+      message = None
+      time = 0 }

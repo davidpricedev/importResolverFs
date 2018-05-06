@@ -1,6 +1,6 @@
 module Utils
 
-let inline T x f = f x
+let inline flip f y x = f x y
 let inline I x = x
 let inline K x y = x
 
@@ -17,7 +17,6 @@ let containsWith pred x list =
 let innerJoin (pred) (xs) (ys) = 
     xs |> Seq.filter (fun x -> (containsWith pred x ys))
 
-let concat (b: string) (a: string) = a + b
 let endsWith (e: string) (str: string) = str.EndsWith(e)
 let startsWith (s: string) (str: string) = str.StartsWith(s)
 

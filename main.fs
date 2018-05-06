@@ -12,19 +12,11 @@ open Path
 let getResolveObj filename oldPath =
     buildResolveObj filename oldPath (relativeToAbsolute filename oldPath)
 
-// sort of doesn't work.
 let getBrokenRefs doesExist isNpm filename =
     getRefsFromFile filename
     |> Seq.filter (not << isNpm)
     |> Seq.map (getResolveObj filename)
     |> Seq.filter (not << doesExist)
-
-// works but doesn't include the files that are really broken
-let getBrokenRefs2 doesExist isNpm filename =
-    getRefsFromFile filename
-    |> Seq.filter (not << isNpm)
-    |> Seq.filter doesFileExist
-    |> Seq.map (getResolveObj filename)
 
 let refExists allFiles excludedExtensions refObj =
     doesFileExistWithExtnLookup
@@ -54,6 +46,10 @@ let applyChange x =
 
 let applyOrDisplay = ifElse (fun x -> x.dryRun) (K display) (K applyChange)
 
+///<remarks>
+/// Technically I could use collect instead of map >> filter >> concat
+///  but the performance of collect with all the empty collections is abysmal.
+///</remarks>
 let run argv = 
     printfn "Gathing Project Files"
 
@@ -73,16 +69,16 @@ let run argv =
 
     allFiles
     |> Spy.aside "Looking for broken references"
-    |> Seq.collect (getBrokenRefs myRefExists myIsNpmPath)
-    //|> (fun x -> (Spy.inspect "1st length" (Seq.length x)); x)
-    |> Spy.inspect "first pass"
-    // find all potential ref matches
+    //|> Seq.collect (fun x -> Spy.profile (sprintf "getBrokenRefs for %s" x) (fun () -> getBrokenRefs myRefExists myIsNpmPath x))
+    |> Array.map (getBrokenRefs myRefExists myIsNpmPath)
+    |> Spy.aside "Ignoring files without broken references"
+    |> Array.filter (not << Seq.isEmpty)
+    |> Seq.concat
+    |> Spy.inspect "Identifying potential solutions"
     |> Seq.map (findPotentials allFiles config) 
-    |> Spy.inspect "second pass" 
-    // use some algorithms to find the best ones
+    |> Spy.inspect "Finding the best solution"
     |> Seq.map (resolveRef allFiles resolve) 
-    |> Spy.inspect "third pass" 
-    // pick the algorithm solution specified in the config
+    |> Spy.inspect "best phase2"
     |> Seq.map (resultToRef config) 
     |> Spy.inspect "fourth pass" 
     // apply all the changes (or display what we would change if --dry-run was specified)

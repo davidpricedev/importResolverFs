@@ -22,10 +22,10 @@ let private fileFilter (config: ConfigType) =
     both (isEndInList config.fileTypes) (not << (isStartInList config.exclude))
 
 let getProjectFiles config =
-    (getAllFiles ".") |> Seq.filter (stripCwd >> (fileFilter config))
+    (getAllFiles ".") |> Array.filter (stripCwd >> (fileFilter config))
 
-let relativeToAbsolute relativeToFile relpath =
-    pathJoin (dirName relativeToFile) relpath
+let relativeToAbsolute relativeToFile =
+    pathJoin (dirName relativeToFile)
 
 let absoluteToRelative (relativeToFile: string) (abspath: string) = 
     getRelativePath (dirName relativeToFile) abspath
@@ -61,19 +61,18 @@ let private rawExtensions extns = extns |> Seq.append [""]
 /// import and require allow dropping file extensions
 /// import and require also allow a folder name - containing an index file
 ///</summary>
-let private indexExtensions extns = rawExtensions extns |> Seq.map (concat "/index")
+let private indexExtensions extns = rawExtensions extns |> Seq.map (fun x -> "/index" + x)
 
 let private getPotentialFileNames filename extns =
     rawExtensions extns
     |> Seq.append (indexExtensions extns)
-    |> Seq.map (concat filename)
+    |> Seq.map (fun x -> filename + x)
 
 let doesFileExistWithExtnLookupRaw excludedExtns filename =
     getPotentialFileNames filename excludedExtns
     |> Seq.filter doesFileExist
     |> (Seq.isEmpty >> not)
 
-// LINQ?
 let private getExisting allFiles potentials =
     innerJoin (fun y x -> endsWith x y) allFiles potentials
 
@@ -93,8 +92,7 @@ let findFilesWithMatchingNamesi allFiles excludedExtns filename =
 
 let doesFileExistWithExtnLookup allFiles excludedExtns filename =
     findFilesWithMatchingNames allFiles excludedExtns filename
-    |> Seq.isEmpty
-    |> not
+    |> (Seq.isEmpty >> not)
 
 let getRefsFromFile filename = getRefsFromFileContent (readWholeFile filename)
 
