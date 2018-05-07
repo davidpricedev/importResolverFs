@@ -13,6 +13,7 @@
     <Compile Include="parser.fs" />
     <Compile Include="file.fs" />
     <Compile Include="resolve/resolveUtil.fs" />
+    <Compile Include="resolve/table2d.fs" />
     <Compile Include="resolve/editDistanceAlgo.fs" />
     <Compile Include="resolve/first.fs" />
     <Compile Include="resolve/random.fs" />

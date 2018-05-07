@@ -1,5 +1,7 @@
 module Utils
 
+open System
+
 let inline flip f y x = f x y
 let inline I x = x
 let inline K x y = x
@@ -24,3 +26,16 @@ let optToStr (strOpt: string option) =
     match strOpt with
     | Some x -> x
     | None -> ""
+
+/// this is one algorithm where a recursive algorithm is probably easier
+let partitionArray (chunkSize: int) (array: array<'a>) =
+    let chunks = int (Math.Floor (decimal array.Length / decimal chunkSize))
+
+    let chunkIt chunkNum =
+        let chunkStart = chunkNum * chunkSize
+        let chunkEndCalc = chunkStart + chunkSize - 1
+        let chunkEnd = Math.Min(chunkEndCalc, array.Length)
+        array.[chunkStart..chunkEnd]
+
+    [| 0..(chunks - 1) |]
+    |> Array.map chunkIt
