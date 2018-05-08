@@ -23,6 +23,12 @@
     <Compile Include="main.fs" />
 
     <Compile Include="resolve/editDistanceAlgo.spec.fs" />
+    <Compile Include="resolve/table2d.spec.fs" />
+    <Compile Include="config.spec.fs" />
+    <!--<Compile Include="file.spec.fs" />
+    <Compile Include="io.spec.fs" />
+    <Compile Include="parser.spec.fs" />
+    <Compile Include="resolve.spec.fs" />-->
 
     <Compile Include="Program.fs" />
   </ItemGroup>

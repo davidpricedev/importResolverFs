@@ -61,6 +61,7 @@ type ConfigType = {
     dryRun: bool
 }
 
+
 let parseConfig = JsonConvert.DeserializeObject<ConfigJsonType>
 
 let hasDryRun args = args |> Seq.exists ((=) "--dry-run")
@@ -73,6 +74,8 @@ let toConfigType args (jsonConfig: ConfigJsonType) = {
     resolveAlgo = jsonConfig.resolveAlgo
     dryRun = hasDryRun args }
     
+let defaultConfigObj = toConfigType [||] (parseConfig defaultConfig)
+
 let readAndParse = prefixCwd >> readWholeFile >> parseConfig
     
 let findBestConfig x =
