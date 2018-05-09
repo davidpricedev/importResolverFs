@@ -37,6 +37,8 @@ let shouldAppendSlash (path: string) = nor (hasExtn path) (endsWithSep path)
 let appendDirectorySeparatorChar (path: string) =
     if shouldAppendSlash path then path + pathSep else path
 
+let private normalize = toAbsolute >> appendDirectorySeparatorChar
+
 ///<summary>
 /// borrowed from https://stackoverflow.com/a/32113484/567493
 ///</summary>
@@ -44,8 +46,8 @@ let getRelativePath (fromPath: string) (toPath: string) =
     if String.IsNullOrEmpty(fromPath) || String.IsNullOrEmpty(toPath) then
         None
     else
-        let fromUri = new Uri(appendDirectorySeparatorChar fromPath)
-        let toUri = new Uri(appendDirectorySeparatorChar toPath)
+        let fromUri = new Uri(normalize fromPath)
+        let toUri = new Uri(normalize toPath)
 
         if fromUri.Scheme <> toUri.Scheme then
             Some toPath
