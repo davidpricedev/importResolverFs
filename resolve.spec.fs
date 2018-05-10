@@ -1,93 +1,58 @@
-const {
-    resolveValidation,
-    first,
-    closest,
-    resolve,
-    editDistance,
-} = require("./resolve.js");
-const { Maybe, List } = require("./adts");
-const { merge } = require("ramda");
+module ResolveSpec
 
-describe("resolve", () => {
-    const filename = "fakeFile";
-    const refpath = "fakeRefPath";
-    const inputBase = {
-        filename,
-        oldPath: refpath,
-    };
+open Xunit
+open Resolve
+open File
+open result
+open Closest
+open First
+open Random
+open EditDistance
 
-    describe("resolveValidation", () => {
-        it("Will return maybe.some if potentials were supplied", () => {
-            const input = merge(inputBase, {
-                potentials: List.of(["fakeOptionA", "fakeOptionB"]),
-            });
-            expect(resolveValidation(input)).toMatchObject({ _some: true });
-        });
+let filename = "fakeFile"
+let refpath = "fakeRefPath"
+let inputBase = buildResolveObj filename refpath refpath
 
-        it("Will return maybe.none if no potentials were supplied", () => {
-            expect(resolveValidation(inputBase)).toMatchObject({ _none: true });
-        });
-    });
+[<Fact>]
+let ``applyFirst:: Will return the first option``() =
+    let potentials = [| "fakeOptionA"; "fakeOptionB" |] 
+    let input = {
+        inputBase with potentials = Some (Seq.ofArray potentials) }
+    let expected = { input with first = Some "fakeOptionA" }
+    Assert.Equal(expected, applyFirst input)
 
-    describe("first", () => {
-        it("Will return the first option", () => {
-            const input = Maybe.Some(
-                merge(inputBase, {
-                    potentials: List.of(["fakeOptionA", "fakeOptionB"]),
-                })
-            );
-            expect(first(input)).toMatchObject({ first: "fakeOptionA" });
-        });
-    });
+[<Fact>]
+let ``applyClosest:: Will find the closest option``() =
+    let potentials = [|
+        "../../../A/B/Z/X/Y/util.js"
+        "../../../A/B/util.js" |]
+    let input = {
+        inputBase with potentials = Some (Seq.ofArray potentials) }
+    let expected = { input with closest = Some potentials.[1] }
+    Assert.Equal(expected, applyClosest input)
 
-    describe("closest", () => {
-        it("Will find the closest option", () => {
-            const potentials = [
-                "../../../A/B/Z/X/Y/util.js",
-                "../../../A/B/util.js",
-            ];
-            const input = Maybe.Some(
-                merge(inputBase, {
-                    potentials: List.of(potentials),
-                })
-            );
-            expect(closest(input)).toMatchObject({ closest: potentials[1] });
-        });
-    });
+[<Fact>]
+let ``applyEditDistance:: Will find the nearest path by edit distance``() =
+    let potentials = [|
+        "../../features/cosmicChameleon"
+        "../../view/cosmicChameleon" |]
+    let input = {
+        inputBase with
+            oldPath = "../../feature/cosmicChameleon"
+            potentials = Some (Seq.ofArray potentials) }
+    let expected = { input with editDistance = Some potentials.[0] }
+    Assert.Equal(expected, applyEditDistance input)
 
-    describe("editDistance", () => {
-        it("Will find the nearest path by edit distance", () => {
-            const potentials = [
-                "../../features/cosmicChameleon",
-                "../../view/cosmicChameleon",
-            ];
-            const input = Maybe.Some(
-                merge(inputBase, {
-                    oldPath: "../../feature/cosmicChameleon",
-                    potentials: List.of(potentials),
-                })
-            );
-            expect(editDistance(input)).toMatchObject({
-                minDistance: potentials[0],
-            });
-        });
-    });
-
-    describe("resolve", () => {
-        it("Will resolve all algorithms", () => {
-            const potentials = [
-                "../../features/cosmicChameleon",
-                "../../view/cosmicChameleon",
-            ];
-            const input = merge(inputBase, {
-                oldPath: "../../feature/cosmicChameleon",
-                potentials: List.of(potentials),
-            });
-            expect(resolve(input)).toMatchObject({
-                first: potentials[0],
-                closest: potentials[0],
-                minDistance: potentials[0],
-            });
-        });
-    });
-});
+[<Fact>]
+let ``resolve:: Will resolve all algorithms``() =
+    let potentials = [|
+        "../../features/cosmicChameleon"
+        "../../view/cosmicChameleon" |]
+    let input = {
+        inputBase with
+            oldPath = "../../feature/cosmicChameleon"
+            potentials = Some (Seq.ofArray potentials) }
+    let result = resolve input
+    Assert.Equal(Some potentials.[0], result.first)
+    Assert.Equal(Some potentials.[0], result.closest)
+    Assert.Equal(Some potentials.[0], result.editDistance)

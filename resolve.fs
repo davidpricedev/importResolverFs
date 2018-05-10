@@ -1,11 +1,11 @@
 module Resolve
 
-open EditDistance
+open File
 open result
 open Closest
 open First
 open Random
-open File
+open EditDistance
 
 let algorithms = [applyFirst; applyRandom; applyClosest; applyEditDistance]
 
@@ -25,10 +25,6 @@ let getResult (config: Config.ConfigType) (resolveObj: Result) =
     | _ -> resolveObj.first
 
 let resultToRef config resolveObj = 
-    let iResultToRef =
-        getResult config >>
-        Option.bind (absoluteToRef resolveObj.filename)
-
     { resolveObj with 
-        resultRef = iResultToRef resolveObj }
+        resultRef = getResult config resolveObj }
             

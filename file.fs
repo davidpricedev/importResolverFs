@@ -38,7 +38,7 @@ let stripExtension = removeAfterLast(".")
 let stripIndex = removeAfterLast("/index")
 
 let addHerePath =
-    ifElse (startsWith ".") I (fun x -> ("./" + x))
+    ifElse (startsWith ".") id (fun x -> ("./" + x))
 
 let absoluteToRef relativeToFile abspath =
     absoluteToRelative relativeToFile abspath

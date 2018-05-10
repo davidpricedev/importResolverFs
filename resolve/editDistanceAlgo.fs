@@ -41,7 +41,7 @@ let calculateDistance (strh: string) (strv: string) =
         elif isInFirstRow node then col
         else
             costOptions node
-            |> Spy.inspect (sprintf "picking best for (%d,%d) from" row col)
+            //|> Spy.inspect (sprintf "picking best for (%d,%d) from" row col)
             |> List.fold (fun x y -> if x < y then x else y) Int32.MaxValue
 
     matrixMap matrix mapper |> getLastValue

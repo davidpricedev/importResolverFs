@@ -13,4 +13,4 @@ let editDistanceCalc fileAndRef x =
 
 let applyEditDistance fileAndRef =
     { fileAndRef with
-        closest = getBest (editDistanceCalc fileAndRef) minReducer fileAndRef }
+        editDistance = getBest (editDistanceCalc fileAndRef) minReducer fileAndRef }

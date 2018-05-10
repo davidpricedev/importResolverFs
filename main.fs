@@ -1,6 +1,7 @@
 ﻿module Main
 
 open System
+open Core
 open Config
 open Utils
 open IO
@@ -8,43 +9,6 @@ open result
 open File
 open Resolve
 open Path
-
-let getResolveObj filename oldPath =
-    buildResolveObj filename oldPath (relativeToAbsolute filename oldPath)
-
-let getBrokenRefs doesExist isNpm filename =
-    getRefsFromFile filename
-    |> Seq.filter (not << isNpm)
-    |> Seq.map (getResolveObj filename)
-    |> Seq.filter (not << doesExist)
-
-let refExists allFiles excludedExtensions refObj =
-    doesFileExistWithExtnLookup
-        allFiles
-        excludedExtensions
-        refObj.fullOldPath
-
-let findPotentials allFiles config fileAndRef = 
-    let potentials = findFilesWithMatchingNamesi allFiles config.missingExtensions (baseName fileAndRef.oldPath)
-
-    let potentialsOpt =
-        if Seq.isEmpty potentials then None else Some potentials 
-
-    { fileAndRef with potentials = potentialsOpt }
-
-let displayChange x = 
-    printfn "[%s]: \n\t%s\n\t -> %s" x.filename x.oldPath (optToStr x.resultRef)
-
-let displayError x =
-    printfn "[%s]: \n\t%s\n\t ~ %s" x.filename x.oldPath (optToStr x.message)
-
-let display = ifElse (fun x -> Option.isSome x.message) displayError displayChange
-
-let applyChange x = 
-    replaceContent x
-    display x
-
-let applyOrDisplay = ifElse (fun x -> x.dryRun) (K display) (K applyChange)
 
 ///<remarks>
 /// Technically I could use collect instead of map >> filter >> concat
@@ -82,7 +46,8 @@ let run argv =
     |> Seq.map (resultToRef config) 
     |> Spy.inspect "fourth pass" 
     // apply all the changes (or display what we would change if --dry-run was specified)
-    |> Seq.map (applyOrDisplay config)
+    |> Seq.fold (fun a i -> a + (applyOrDisplay config i)) ""
+    |> printfn "%s"
     (*
     |> Seq.map (
         // find all potential ref matches

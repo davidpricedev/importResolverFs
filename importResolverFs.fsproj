@@ -20,17 +20,20 @@
     <Compile Include="resolve/editDistance.fs" />
     <Compile Include="resolve/closest.fs" />
     <Compile Include="resolve.fs" />
+    <Compile Include="core.fs" />
     <Compile Include="main.fs" />
 
+    <!-- tests -->
     <Compile Include="resolve/editDistanceAlgo.spec.fs" />
     <Compile Include="resolve/table2d.spec.fs" />
     <Compile Include="config.spec.fs" />
     <Compile Include="path.spec.fs"/>
     <Compile Include="file.spec.fs" />
-    <!--
     <Compile Include="parser.spec.fs" />
-    <Compile Include="resolve.spec.fs" />-->
+    <Compile Include="resolve.spec.fs" />
+    <Compile Include="core.spec.fs" />
 
+    <!-- entry point has to be last -->
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>

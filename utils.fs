@@ -3,7 +3,6 @@ module Utils
 open System
 
 let inline flip f y x = f x y
-let inline I x = x
 let inline K x y = x
 
 let inline ifElse pred thenCase elseCase data = 
