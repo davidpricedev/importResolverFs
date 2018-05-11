@@ -4,34 +4,34 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="utils.fs" />
-    <Compile Include="spy.fs" />
-    <Compile Include="result.fs" />
-    <Compile Include="path.fs" />
-    <Compile Include="io.fs" />
-    <Compile Include="config.fs" />
-    <Compile Include="parser.fs" />
-    <Compile Include="file.fs" />
-    <Compile Include="resolve/resolveUtil.fs" />
-    <Compile Include="resolve/table2d.fs" />
-    <Compile Include="resolve/editDistanceAlgo.fs" />
-    <Compile Include="resolve/first.fs" />
-    <Compile Include="resolve/random.fs" />
-    <Compile Include="resolve/editDistance.fs" />
-    <Compile Include="resolve/closest.fs" />
-    <Compile Include="resolve.fs" />
-    <Compile Include="core.fs" />
-    <Compile Include="main.fs" />
+    <Compile Include="src/utils.fs" />
+    <Compile Include="src/spy.fs" />
+    <Compile Include="src/result.fs" />
+    <Compile Include="src/path.fs" />
+    <Compile Include="src/io.fs" />
+    <Compile Include="src/config.fs" />
+    <Compile Include="src/parser.fs" />
+    <Compile Include="src/file.fs" />
+    <Compile Include="src/resolve/resolveUtil.fs" />
+    <Compile Include="src/resolve/table2d.fs" />
+    <Compile Include="src/resolve/editDistanceAlgo.fs" />
+    <Compile Include="src/resolve/first.fs" />
+    <Compile Include="src/resolve/random.fs" />
+    <Compile Include="src/resolve/editDistance.fs" />
+    <Compile Include="src/resolve/closest.fs" />
+    <Compile Include="src/resolve.fs" />
+    <Compile Include="src/core.fs" />
+    <Compile Include="src/main.fs" />
 
     <!-- tests -->
-    <Compile Include="resolve/editDistanceAlgo.spec.fs" />
-    <Compile Include="resolve/table2d.spec.fs" />
-    <Compile Include="config.spec.fs" />
-    <Compile Include="path.spec.fs"/>
-    <Compile Include="file.spec.fs" />
-    <Compile Include="parser.spec.fs" />
-    <Compile Include="resolve.spec.fs" />
-    <Compile Include="core.spec.fs" />
+    <Compile Include="src/resolve/editDistanceAlgo.spec.fs" />
+    <Compile Include="src/resolve/table2d.spec.fs" />
+    <Compile Include="src/config.spec.fs" />
+    <Compile Include="src/path.spec.fs"/>
+    <Compile Include="src/file.spec.fs" />
+    <Compile Include="src/parser.spec.fs" />
+    <Compile Include="src/resolve.spec.fs" />
+    <Compile Include="src/core.spec.fs" />
 
     <!-- entry point has to be last -->
     <Compile Include="Program.fs" />
